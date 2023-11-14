@@ -4,13 +4,118 @@ The standard creation process goes through many steps, one of which is the creat
 
 ## Audio Analyser
 
+### Dataset load
+
+```{r, echo=FALSE}
+url2 <- "https://raw.githubusercontent.com/matteospanio/mpai-audio-analyser/main/src/ml/datasets/data/test.csv"
+url <- "https://raw.githubusercontent.com/matteospanio/mpai-audio-analyser/main/src/ml/datasets/data/train.csv"
+raw_data <- tempfile(fileext = ".csv")
+
+download.file(url, raw_data,
+              method = "auto",
+              mode = "wb")
+
+audio_data <- read.csv(raw_data)
+```
+
+The dataset is composed by `r length(audio_data)`
+
+### Preprocessing
+
+```{r}
+library(stringr)
+
+audio_data$r_eq <- ifelse(endsWith(audio_data$label, "N"), "NAB", "CCIR")
+audio_data$w_eq <- ifelse(
+  endsWith(
+    sapply(str_split(audio_data$label, "_"), function(x) x[1]),
+    "N"
+  ),
+  "NAB", "CCIR")
+
+audio_data$same_eq <- audio_data$r_eq == audio_data$w_eq
+```
+
+MFCCs normalization:
+
+```{r}
+library(dplyr)
+
+audio_data[3:15] <- audio_data[3:15] |>  data.frame() |> scale()
+```
+
+### Statistical analysis
+
+```{r, fig.align = "center"}
+library(ggplot2)
+library(ggpubr)
+
+p1 <- ggdensity(audio_data, x = "mfcc1",
+  add = "mean", rug = TRUE,
+  color = "same_eq", fill = "same_eq",
+  palette = c("#00AFBB", "#E7B800"),
+  ylab = "Density",
+  xlab = "MFCC 1 (normalized)",
+  legend.title = "Writing equalisation curve"
+)
+
+p2 <- ggdensity(audio_data, x = "mfcc2",
+  add = "mean", rug = TRUE,
+  color = "same_eq", fill = "same_eq",
+  palette = c("#00AFBB", "#E7B800"),
+  ylab = "Density",
+  xlab = "MFCC 2 (normalized)",
+  legend.title = "Writing equalisation curve"
+)
+
+p3 <- ggdensity(audio_data, x = "mfcc3",
+  add = "mean", rug = TRUE,
+  color = "same_eq", fill = "same_eq",
+  palette = c("#00AFBB", "#E7B800"),
+  ylab = "Density",
+  xlab = "MFCC 3 (normalized)",
+  legend.title = "Writing equalisation curve"
+)
+
+p4 <- ggdensity(audio_data, x = "mfcc4",
+  add = "mean", rug = TRUE,
+  color = "same_eq", fill = "same_eq",
+  palette = c("#00AFBB", "#E7B800"),
+  ylab = "Density",
+  xlab = "MFCC 4 (normalized)",
+  legend.title = "Writing equalisation curve"
+)
+
+ggarrange(
+  p1, p2, p3, p4,
+  ncol=2, nrow=2,
+  common.legend = TRUE,
+  legend="bottom"
+)
+```
+
+```{r}
+pca_results <- prcomp(audio_data[3:15], scale = TRUE)
+pca_2d <- pca_results$x[, 1:2]
+
+df_reduced <- data.frame(PC1 = pca_2d[, 1], PC2 = pca_2d[, 2], same_eq = audio_data$same_eq)
+
+ggplot(df_reduced, aes(x = PC1, y = PC2, color=same_eq)) +
+  geom_point() +
+  labs(
+    title = "PCA Scatter Plot",
+    x = "Principal Component 1",
+    y = "Principal Component 2",
+    color = "Same eq. curve")
+```
+
 ## Video Analyser
 
 In the MPAI-CAE ARP use case the modules directly involved in the analysis of video input are the Video Analyser, whose purpose is to identify the areas of the tape that present specific points of interest, storing them as *Irregularity Images*, and the Tape Irregularity Classifier which takes care of classifying the Irregularity Images based on their content.
 
 For the entire duration of the tape, the video analysis concerns the portion of the tape below the reading head, also including other typical components of the open-reel recorder (see @fig-scene). In particular, video files contain a recording of open-reel tapes played on a Studer A810 (see @fig-studer-a810).
 
-![The Studer A810 open-reel recorder](figures/P1430046~2.jpg){#fig-studer-a810}
+![The Studer A810 open-reel recorder](../figures/P1430046~2.jpg){#fig-studer-a810}
 
 Since the CSC began to video documenting the entire digitization process in 2013, due to issues related to available equipment, most of the archived videos have a PAL resolution (720x576), at 25 interlaced fps. This choice doesn't affect the detection process but must be taken into account during the image classification stage.
 
@@ -30,17 +135,17 @@ To address these challenges, a reevaluation of the Irregularities' characterizat
 
 Given that Irregularities exhibited only horizontal movement, the approach was to concentrate on variations in a specific part of the frame. The most effective solution was to shift the focus away from the moving elements of the scene (i.e., the Irregularities) and select areas of interest based on stationary elements instead. In this case, the capstan and the reading head, which are the components closest to the tape, remained stationary within the frame and served as reference points for automatically identifying the pixel regions where Irregularities appear (see #fig-scene).
 
-![Fixed elements of interest in the frame.](figures/scene_obj.png){#fig-scene}
+![Fixed elements of interest in the frame.](../figures/scene_obj.png){#fig-scene}
 
 The capstan is a rotating shaft used to move the tape through the mechanisms and magnetic heads (for erasing, recording, and playback) of the tape recorder. During playback, the tape passes through the capstan and a rubber wheel called the pinch roller. The pinch roller presses the tape against the capstan, providing the necessary friction for the tape to continue moving. Typically, the pinch roller is located after the magnetic heads in the direction of the tape's movement (on the right side of the video in this case).
 
 To detect Irregularities, it is sufficient to examine the pixels below the reading head. Since the tape only moves horizontally, the anomalies, flowing from left to right, inevitably enter this area. The capstan can also be used for the same purpose, but in this case, it is useful for different events of interest: the start and the end of the tape. When the playback ends, the pinch roller releases the tape by moving away from the capstan, and sometimes this causes the tape to come out of the reading head's slot. The movement of the pinch roller is clearly visible in all the videos, and for this reason, it was chosen as the reference point to detect the moment when the tape reaches its end. A similar situation occurs at the beginning of the video when the tape is not being played and the capstan is in its ``rest'' position (see @fig-capstan-pinch-roller} for a visual representation of the capstan and pinch roller positioning). By focusing only on the area below the capstan, it is possible to detect when it moves to release the tension from the tape.
 
-![Tape scrilling mechanism of the Studer A810.](figures/P1430044~2.jpg){#fig-capstan-pinch-roller}
+![Tape scrilling mechanism of the Studer A810.](../figures/P1430044~2.jpg){#fig-capstan-pinch-roller}
 
 To identify stationary elements within the scene, well-known algorithms capable of finding patterns within an image were employed: the Generalized Hough Transform @BALLARD1981111 and SURF (Speeded Up Robust Features) @BAY2008346. Their coordinates within the image could be determined by providing these algorithms with the image of the capstan and the reading head. The coordinates of the underlying areas were defined through empirical methods. Figure @fig-rois shows the identified areas below the capstan and the reading head.
 
-![ROIs under the capstan and the reading head.](figures/scena.png){#fig-rois}
+![ROIs under the capstan and the reading head.](../figures/scena.png){#fig-rois}
 
 The actual implementation of this step involves examining the middle frame of the video, which should represent a normal situation regarding the framing or the presence of an Irregularity. During this step, the position of ROIs is determined by searching for template images in the frame using the aforementioned algorithms.
 
@@ -58,7 +163,7 @@ $$
 $$
 where $i=1,\dots,n$ and $n$ is the number of rows in the matrix, $j=1,\dots,m$ and $m$ is the number of columns in the matrix, matrix $\mathbf{D}$ is the difference frame, $\mathbf{C}_{\text{red}}$, $\mathbf{C}_{\text{green}}$, and $\mathbf{C}_{\text{blue}}$ are the current frame matrices for the red, green, and blue color channels respectively, and $\mathbf{P}_{\text{red}}$, $\mathbf{P}_{\text{green}}$, and $\mathbf{P}_{\text{blue}}$ are the previous frame matrices for the red, green, and blue color channels respectively.
 
-![Actual comparison image output of the tape area under the reading head.](figures/vlcsnap-2023-06-17-11h03m34s092.png){#fig-black-and-white}
+![Actual comparison image output of the tape area under the reading head.](../figures/vlcsnap-2023-06-17-11h03m34s092.png){#fig-black-and-white}
 
 As shown in @fig-black-and-white, the generated comparison image provides a visual representation of the differences between consecutive frames in the tape area under the reading head. The white regions indicate areas where the frames match, while the black regions represent variations between the frames. This image serves as a valuable tool for identifying Irregularities and assessing the extent of their presence.
 
@@ -72,7 +177,7 @@ To address this issue, considering that the region of interest (ROI) in correspo
 #### Handling Interlacing
 Another issue related to the tape format concerns the storage of Irregularity images. Since the majority of the video files archived at CSC was recorded long before the design and development of the software, the videos were recorded in PAL format at 25 fps, interlaced. Interlacing is a notable drawback of the input files, since each frame is divided into even and odd lines, resulting in misalignment between the two fields, particularly noticeable in areas with motion (@fig-interlacing).
 
-![Interlaced picture: notice the misalignment between odd and even lines](figures/interlaced_video.png){#fig-interlacing width=90%}
+![Interlaced picture: notice the misalignment between odd and even lines](../figures/interlaced_video.png){#fig-interlacing width=90%}
 
 In the Irregularity detection phase, dealing with interlaced images does not introduce particular problems. Since the comparison occurs on a pixel-by-pixel basis, the analyzed frames in pairs are interlaced in the same manner, resulting in consistent misalignment of even and odd pixel rows in subsequent frames. However, interlacing can adversely affect the classification phase, which employs a convolutional neural network. In fact, this type of neural network reduces the number of pixels as it progresses deeper into the network, approximating the colors of neighboring pixels to identify characteristic patterns within an image. Unfortunately, interlacing alters the colors of neighboring pixels and significantly impairs the classifier's performance.
 

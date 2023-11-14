@@ -21,6 +21,7 @@ format:
     theme: cosmo
   pdf:
     documentclass: scrreprt
-
-
-
+    toc: true
+    lof: true
+    fontfamily: libertine
+    monofont: inconsolata
