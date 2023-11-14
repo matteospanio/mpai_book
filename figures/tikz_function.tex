@@ -1,0 +1,28 @@
+\begin{tikzpicture}[scale=0.7]
+
+    \tikzset{rectangle node/.style={draw, minimum height=16mm, minimum width=3cm}}
+    \tikzset{round node/.style={circle, draw}}
+
+    \node[rectangle node, align=left, draw=red, fill=white] (input1) {Input 1};
+    \StartDrawOnBottomOfLayerStack
+        \node [rectangle node, fit=(input1), inner sep=0, xshift=1mm, yshift=1mm, fill=white, draw=green] {};
+        \node [rectangle node, fit=(input1), inner sep=0, xshift=2mm, yshift=2mm, draw=blue] (d1) {};
+    \EndDrawOnTopOfLayerStack
+
+    \node[rectangle node, align=right, draw=red, below=1.5cm of input1, fill=white] (input2) {Input 2};
+    \StartDrawOnBottomOfLayerStack
+        \node [rectangle node, fit=(input2), inner sep=0, xshift=1mm, yshift=1mm, fill=white, draw=green] {};
+        \node [rectangle node, fit=(input2), inner sep=0, xshift=2mm, yshift=2mm, draw=blue] (d2) {};
+    \EndDrawOnTopOfLayerStack
+    \coordinate (midpoint) at ($(input1)!0.5!(input2)$);
+    \node[round node, align=center, fill=white, right=3cm of midpoint] (sub) {$-$} {};
+
+    \node[rectangle node, align=center, draw, right=1cm of sub, fill=white] (output) {};
+
+    \fill[color=black] (output.south west) rectangle (output.north);
+
+\draw [->] (d1) -- (sub);
+\draw [->] (d2) -- (sub);
+\draw [->] (sub) -- (output);
+
+\end{tikzpicture}

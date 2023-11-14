@@ -1,0 +1,94 @@
+# Reference software
+
+The standard creation process goes through many steps, one of which is the creation of the reference software. In this case, due to the modularity imposed by MPAI, the client-server architecture has been chosen.
+
+## Audio Analyser
+
+## Video Analyser
+
+In the MPAI-CAE ARP use case the modules directly involved in the analysis of video input are the Video Analyser, whose purpose is to identify the areas of the tape that present specific points of interest, storing them as *Irregularity Images*, and the Tape Irregularity Classifier which takes care of classifying the Irregularity Images based on their content.
+
+For the entire duration of the tape, the video analysis concerns the portion of the tape below the reading head, also including other typical components of the open-reel recorder (see @fig-scene). In particular, video files contain a recording of open-reel tapes played on a Studer A810 (see @fig-studer-a810).
+
+![The Studer A810 open-reel recorder](figures/P1430046~2.jpg){#fig-studer-a810}
+
+Since the CSC began to video documenting the entire digitization process in 2013, due to issues related to available equipment, most of the archived videos have a PAL resolution (720x576), at 25 interlaced fps. This choice doesn't affect the detection process but must be taken into account during the image classification stage.
+
+The Video Analyser employs a frame-by-frame analysis approach to identify and capture frames exhibiting significant differences when compared to their preceding ones. In the subsequent step (Tape Irregularity Classifier), the focus is placed on these distinctive frames to detect and highlight potential anomalies that may indicate tape damages, scratches, splices, or other Irregularities. This is accomplished through the utilization of a carefully calibrated classifier module based on a convolutional neural network.
+The implementation of the Irregularity detection process underwent multiple iterations. After the refinement process, the following algorithm was devised as follow:
+
+
+* Identify the Regions of Interest.
+* Traverse through the video, comparing consecutive pairs of frames.
+* If the count of dissimilar pixels between a pair surpasses a predetermined threshold, an Irregularity is detected.
+
+### ROI Detection
+
+Preliminary studies explored the possibilities of background subtraction algorithms (@fantozzi2017). This method utilized previously gathered information to separate new elements from recurring ones. However, this approach yielded numerous false positives, capturing insignificant variations in brightness, reel movement, and other undesired artifacts. Furthermore, there were inevitable performance issues due to the long operation time associated with the BackgroundSubtractorKNN tool. Unfortunately, improving the execution time was not feasible due to limitations imposed by the OpenCV algorithm implementation (@opencv_library).
+
+To address these challenges, a reevaluation of the Irregularities' characterization was conducted, with a focus on scene framing. It was observed that all anomalies shared a lack of vertical movement and typically consisted of small clusters of points related to the frame size.
+
+Given that Irregularities exhibited only horizontal movement, the approach was to concentrate on variations in a specific part of the frame. The most effective solution was to shift the focus away from the moving elements of the scene (i.e., the Irregularities) and select areas of interest based on stationary elements instead. In this case, the capstan and the reading head, which are the components closest to the tape, remained stationary within the frame and served as reference points for automatically identifying the pixel regions where Irregularities appear (see #fig-scene).
+
+![Fixed elements of interest in the frame.](figures/scene_obj.png){#fig-scene}
+
+The capstan is a rotating shaft used to move the tape through the mechanisms and magnetic heads (for erasing, recording, and playback) of the tape recorder. During playback, the tape passes through the capstan and a rubber wheel called the pinch roller. The pinch roller presses the tape against the capstan, providing the necessary friction for the tape to continue moving. Typically, the pinch roller is located after the magnetic heads in the direction of the tape's movement (on the right side of the video in this case).
+
+To detect Irregularities, it is sufficient to examine the pixels below the reading head. Since the tape only moves horizontally, the anomalies, flowing from left to right, inevitably enter this area. The capstan can also be used for the same purpose, but in this case, it is useful for different events of interest: the start and the end of the tape. When the playback ends, the pinch roller releases the tape by moving away from the capstan, and sometimes this causes the tape to come out of the reading head's slot. The movement of the pinch roller is clearly visible in all the videos, and for this reason, it was chosen as the reference point to detect the moment when the tape reaches its end. A similar situation occurs at the beginning of the video when the tape is not being played and the capstan is in its ``rest'' position (see @fig-capstan-pinch-roller} for a visual representation of the capstan and pinch roller positioning). By focusing only on the area below the capstan, it is possible to detect when it moves to release the tension from the tape.
+
+![Tape scrilling mechanism of the Studer A810.](figures/P1430044~2.jpg){#fig-capstan-pinch-roller}
+
+To identify stationary elements within the scene, well-known algorithms capable of finding patterns within an image were employed: the Generalized Hough Transform @BALLARD1981111 and SURF (Speeded Up Robust Features) @BAY2008346. Their coordinates within the image could be determined by providing these algorithms with the image of the capstan and the reading head. The coordinates of the underlying areas were defined through empirical methods. Figure @fig-rois shows the identified areas below the capstan and the reading head.
+
+![ROIs under the capstan and the reading head.](figures/scena.png){#fig-rois}
+
+The actual implementation of this step involves examining the middle frame of the video, which should represent a normal situation regarding the framing or the presence of an Irregularity. During this step, the position of ROIs is determined by searching for template images in the frame using the aforementioned algorithms.
+
+### Detection of Irregularities
+
+Once the areas of interest within the scene have been established, an activation function is employed to determine the presence of Irregularities. The number of differing pixels in each pair can be calculated By utilizing pairs of consecutive frames. focusing on the identified ROIs, it has been observed that approximately $80\%$ of the pixels consistently exhibit variations in terms of colors and shadows. Therefore, it has been established that when the quantity of differing pixels exceeds the set threshold, a significant difference between the two frames has been detected. To quantify the differing pixels between two images, a new image is generated with white pixels representing the matching ones, and black ones for indicating their differences. The generation of the comparison image can be described as follows:
+
+$$
+  \mathbf{D}(i, j) = \begin{cases}
+    255 & \text{if } \mathbf{C}_{\text{red}}(i, j) - \mathbf{P}_{\text{red}}(i, j) = 0\quad\wedge\\
+    &\quad\mathbf{C}_{\text{green}}(i, j) - \mathbf{P}_{\text{green}}(i, j) = 0\quad\wedge\\
+    &\quad\mathbf{C}_{\text{blue}}(i, j) - \mathbf{P}_{\text{blue}}(i, j) = 0 \\
+    0 & \text{otherwise}
+  \end{cases}
+$$
+where $i=1,\dots,n$ and $n$ is the number of rows in the matrix, $j=1,\dots,m$ and $m$ is the number of columns in the matrix, matrix $\mathbf{D}$ is the difference frame, $\mathbf{C}_{\text{red}}$, $\mathbf{C}_{\text{green}}$, and $\mathbf{C}_{\text{blue}}$ are the current frame matrices for the red, green, and blue color channels respectively, and $\mathbf{P}_{\text{red}}$, $\mathbf{P}_{\text{green}}$, and $\mathbf{P}_{\text{blue}}$ are the previous frame matrices for the red, green, and blue color channels respectively.
+
+![Actual comparison image output of the tape area under the reading head.](figures/vlcsnap-2023-06-17-11h03m34s092.png){#fig-black-and-white}
+
+As shown in @fig-black-and-white, the generated comparison image provides a visual representation of the differences between consecutive frames in the tape area under the reading head. The white regions indicate areas where the frames match, while the black regions represent variations between the frames. This image serves as a valuable tool for identifying Irregularities and assessing the extent of their presence.
+
+### Resolution of Identified Issues
+
+#### Mitigating False Positives
+In order to to ensure that all Irregularities within an input tape are accurately identified, it is fundamental to test the accuracy of the software. The testing of the developed software showed good results, but an occasional detection of false positives also occurred. If an Irregularity extends for several centimeters on the length of the tape, it may be detected several times, with the output of multiple Irregularity images.
+
+To address this issue, considering that the region of interest (ROI) in correspondence of the tape's reading head is 3 cm wide, the analyzed tapes run at a speed of 7.5 or 15 inches per second (ips), and the videos were recorded at 25 fps, it was measured that, depending on the speed, discarding two or three subsequent frames upon detecting an Irregularity is sufficient to avoid duplicating the same Irregularity (although false positives may still occur in the case of exceptionally long Irregularities). This approach significantly reduces the number of images saved as Irregularities by the software.
+
+#### Handling Interlacing
+Another issue related to the tape format concerns the storage of Irregularity images. Since the majority of the video files archived at CSC was recorded long before the design and development of the software, the videos were recorded in PAL format at 25 fps, interlaced. Interlacing is a notable drawback of the input files, since each frame is divided into even and odd lines, resulting in misalignment between the two fields, particularly noticeable in areas with motion (@fig-interlacing).
+
+![Interlaced picture: notice the misalignment between odd and even lines](figures/interlaced_video.png){#fig-interlacing width=90%}
+
+In the Irregularity detection phase, dealing with interlaced images does not introduce particular problems. Since the comparison occurs on a pixel-by-pixel basis, the analyzed frames in pairs are interlaced in the same manner, resulting in consistent misalignment of even and odd pixel rows in subsequent frames. However, interlacing can adversely affect the classification phase, which employs a convolutional neural network. In fact, this type of neural network reduces the number of pixels as it progresses deeper into the network, approximating the colors of neighboring pixels to identify characteristic patterns within an image. Unfortunately, interlacing alters the colors of neighboring pixels and significantly impairs the classifier's performance.
+
+Various techniques to reduce the effects of interlacing have been explored and tested. One widely used technique in dedicated playback software involves separating the semi-quads within the analyzed frame. This process generates two images: one containing the even lines and the other containing the odd lines. By utilizing only one of these semi-quads, half of the original frame's information is lost, but the other half image gives more reliable results for this specific use case. Thus, it has been chosen to save only the semi-quad containing the odd lines, resulting in images with a resolution of 720x228 pixels. This approach mitigated the misalignment caused by interlacing and provided a more accurate representation of the tape's content.
+
+
+## Tape Irregularity Classifier
+
+Following the image acquisition process, a CNN based on the GoogLeNet network @DBLP:journals/corr/SzegedyLJSRAEVR14 is employed to classify the acquired images. The CNN has undergone training on specific classes, namely splices, brands, shadows and end of tape. While additional types of Irregularities do exist, their inclusion in the classifier's training set was not feasible due to their significantly lower frequency of recurrence, especially compared to the aforementioned classes. Such inclusion would have led to an imbalanced dataset, undermining the effectiveness of the classification model. Therefore, the number of classes was reduced, ensuring a more balanced input for the classifier @10.1162/comj_a_00487.
+
+Separate analyses were conducted on two different datasets: the first one with tapes played at 7.5 ips and the other for tapes played at 15 ips. Both classifiers exhibited an accuracy of $95\%$ during the validation phase, a noteworthy achievement. This high accuracy was further confirmed during the subsequent testing phase, which involved evaluating the performance of the classifiers on frames extracted from the dataset prior to the network's training. This comprehensive evaluation solidifies the robustness and reliability of the developed system.
+
+## Tape Audio Restoration
+
+Open-reel tapes can be recorded at different speeds: 30 ips (76.2 cm/s), 15 ips (38.1 cm/s), 7.5 ips (19.05 cm/s), 3.75 ips (9.53 cm/s), 1.875 ips (4.76 cm/s) and 0.9375 ips (2.38 cm/s). Professional studio machines usually adopt higher speeds, while portable ones usually feature lower speed values to increment the recording length for smaller tapes. Another critical parameter in the tape restoration and preservation is the equalization adopted in the original recording. The equalization curve is used during the recording as pre-emphasis for extending the dynamic range and improving the recorded signal’s Signal to Noise Ratio (SNR). During playback, the inverse post-emphasis curve is applied to restore the original frequency response. Sometimes, given the difficulty of finding fully operating analog machines with the proper speed configuration and equalization settings required by the specific audio document at hand, operators have to perform the digitization adapting to the devices that are available during the process. In other cases, the operator might not detect changes in speed occurred during the original recording. These common situations may introduce errors that cannot be reversed. The Tape Audio Restoration module corrects errors related to changes in speed and those related to the application of wrong equalization curves. At the end of the process, the Tape Audio Restoration AIM provides the Restored Audio Files and an Editing List to the Packager AIM
+
+## Packager
+
+The Preservation Master File includes the Preservation Audio File, the Preservation Audio-Visual file where the audio has been replaced with the Audio of the Preservation Audio File synchronized with the video, the Irregularity Images File in a single .zip file, and the Irregularity File listing all detected Irregularities. Access Copy Files include the audio information stored on the tape, and Restored Audio Files, which are suitable for audio content access but not for long-term preservation. In addition, Access Copy Files includes an Editing List, The Irregularity File, and the corresponding set of Irregularity Images

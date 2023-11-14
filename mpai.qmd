@@ -1,0 +1,93 @@
+# MPAI
+
+> The nice thing about standards is that you have so many to choose from.
+>
+> **Andrew S. Tanenbaum**
+
+In recent decades, artificial intelligence (AI) has emerged as a transformative technology with a wide range of applications in various industries. The use of AI in everyday-use software has become increasingly common, and its impact is felt across a wide spectrum of human activities. AI technologies have been used to improve the efficiency of industrial processes, enhance the accuracy of medical diagnoses, optimize the performance of financial markets, and even help us to make better decisions in our personal lives. However, the rapid proliferation of AI-based software applications has led to a range of challenges that must be addressed if the full potential of this technology is to be realized.
+
+One of the key challenges that arise from the proliferation of AI-based software is the lack of a consistent and standardized development methodology. Each software project tends to establish its own development methodology, which creates a lot of confusion on the general scene for interoperability between various software. In fact, the development of AI-based software is a complex and challenging process that requires a deep understanding of the underlying technologies and a rigorous approach to the development process. This often leads to a situation where each software project has to start from scratch in establishing its own development methodology, which can lead to significant delays, increased costs, and reduced interoperability between different software applications.
+
+The lack of standards is not only a problem for software developers but also for end-users who are often unaware of the underlying technology and its limitations. End-users expect AI-based software to be reliable, accurate, and safe, but without a standardized development methodology, there is no guarantee that these expectations will be met [^intro-1] . This creates a significant risk for end-users who may unwittingly rely on AI-based software applications that are not well-designed or well-tested, leading to potential safety hazards, loss of privacy, and other negative outcomes. To address these challenges, there is a need for a standard to establish some firm points in the development of AI-bound software. A standard would help to provide a clear and consistent framework for the development of AI-based software applications, ensuring that they are reliable, accurate, and safe for end-users. It would also help to reduce the time and costs associated with the development process by providing a common set of guidelines that can be used across different software projects. In addition, a standard would help to promote interoperability between different software applications, allowing for greater collaboration and innovation in the AI industry.
+
+[^intro-1]: Unfortunately, another very common problem is the fact that there is still a lot of misinformation regarding the world of AI. Too often, there is a tendency to "humanize" machines, expecting them to be able to produce judgments autonomously, to process thoughts. One aspect to consider would be to adequately inform the general public, in this way a proper use of the tools provided by experts in the field would be spread, generating greater overall satisfaction and awareness of the tools being used.
+
+Overall, the need for a shared view of things in the development of AI-bound software is clear, it would be a concrete improvement in a world where the coming years are expected to be pervaded by the growth of smart assistants, self-driving vehicles and who knows what else. By addressing these challenges, a standard would help to unlock the full potential of AI-based software and ensure that it is used in a way that benefits society as a whole.
+
+The MPAI project has been proposed as a solution to this problem, with the aim of developing AI-enabled data coding standards [^intro-2] . The MPAI - Moving Picture, Audio and Data Coding by Artificial Intelligence - project proposes a range of standards for products, applications and services that make central use of Artificial Intelligence. The project comprehends many areas affected by AI as health data coding, context-based audio enhancement, connected autonomous vehicles, AI-enhanced video coding, multimodal conversation, server-based predictive multiplayer gaming, and many more. The MPAI standards are designed to be modular and flexible, and are based on entities called AIFs (AI-Frameworks) that are themselves constituted by AIMs (AI-Modules). Each AIM is designed to perform a specific AI task. The AIF provides a framework for organizing and combining these AIMs to perform more complex tasks. MPAI provides the semantic and syntax of input and output data between each AIM and the AIF, defining software pipelines based on data sharing and exchange [^intro-3] .
+
+[^intro-2]: MPAI was born in September 2020 from the ashes of the MPEG project, which was closed in June of the same year. The idea behind the establishment of MPAI is that the experience of MPEG has seen the birth of standards that have revolutionized the audio and video industry of the last thirty years, allowing easy intercommunication between various producers. With the advent of AI, we are witnessing rapid changes accompanied by general chaos in the background. MPAI's objective is to bring order to this scenario by proposing a common way of addressing current issues.
+
+[^intro-3]: The concept is really similar to a pipeline: the standard defines what can enter and what can exit the pipeline, but it does not specify how the data is processed (a implementation guide is provided but it is not mandatory). This is left to the discretion of the implementer, who can choose the best algorithm for the task at hand.
+
+In conclusion, the MPAI project is a significant step forward in the development of AI-bound software standards. Its modular and flexible approach provides a powerful framework for developing customized solutions for a wide range of applications.
+
+As it stands to reason, MPAI therefore establishes a series of technical specifications which must then be implemented and become part of a common ecosystem as specified below:
+
+- MPAI provides Technical, Conformance and Performance specifications
+
+- These are implemented
+
+- MPAI verifies implementations via its Performance Assessors
+
+- The MPAI Store incorporates the verified implementation and distributes it to end users.
+
+Specifications are issued in the form of AI Framework (AIF) like the one in @fig-mpai-aif  and those AIF are composed by many basic processing entities called AI Modules (AIM).
+
+![MPAI-AIF Reference Model [^4]](https://mpai.community/wp-content/uploads/2022/06/AIF-V1.png){fig-align="center" #fig-mpai-aif}
+
+[^4]: This figure refers to the MPAI-AIF v1. At the time of writing, the MPAI-AIF v2 is under development and it should introduce a new layer all over the AIF adding security support to MPAI-AIF v1. Since the discussion of the MPAI-AIF specifications is outside the scope of this section and version 2 does not differ much from version 1, the figure illustrates the MPAI-AIF v1 for the sake of simplicity.
+
+## Context-based Audio Enhancement
+
+The Context-based Audio Enhancement (MPAI-CAE) is a collection of 4 use cases that share common characteristic concerning the improvement of the user experience for audio-related applications. (@mpai-book)
+
+The 4 use cases considered are:
+
+- Emotion Enhanced Speech (EES). In the field of speech synthesis the next step is to make the speech sound more natural including the emotional aspects of the speech. The implementations of this standard can be used to create virtual assistants that can express emotions and feelings in a more natural way.
+
+- Audio Recording Preservation (ARP). The conversion from analog to digital audio is a process that can introduce artifacts in the audio signal and must take in consideration also some aspects of the physical support where can be found annotations and other information. This standard provides a structured way to preserve the original audio signal and the information related to it.
+
+- Speech Restoration System (SRS). The purpose of this use case is to restore damaged Audio Segments containing speech from only one speaker (the audio can be fully or partially damaged).
+
+- Enhanced Audioconference Experience (EAE). This use case improve auditory experience in an audioconference, in fact often the undertandability of the speech in a conference can be compromised by the presence of background noise or a not optimal environment. This standard provides a way to improve the audio quality of the conference.
+
+## Centro di Sonologia Computazionale
+
+Over the past two decades, Centro di Sonologia Computazionale (CSC), the Sound and Music Computing laboratory of the Department of Information Engineering at the University of Padova, has been actively engaged in research on the preservation of historical audio documents. Given the multifaceted challenges associated with this task, a multidisciplinary approach has been adopted to fully leverage the vast potential of this documentary heritage. The methodology developed by CSC over the years has focused on both active preservation of historical audio documents and enabling access to them, with particular emphasis on analog magnetic tapes. The efficacy of this methodology has been tested and validated through various international projects undertaken in partnership with esteemed European audio archives, including the Paul-Sacher-Stiftung in Basel, the Fondazione Arena di Verona, the Historical Archive of the Teatro Regio di Parma, and the Luigi Nono Archive in Venice. (@Canazza2019FourDO)
+
+Unlike passive preservation, which pertains to safeguarding the material structure of the documents, active preservation aims to preserve their content in digital form. This involves digitizing the tapes and ensuring safe transfer of identical copies from one digital carrier to another. Several factors must be considered during the digitization process, including the material structure of the object, which encompasses the physical-chemical components, technology, production system (acoustic, electroacoustic, magnetic), and audio and playback format (such as speed and equalization). Additionally, the primary information, which is the recorded audio signal, and secondary informations, such as notes on the box, noise signals characterizing the recording system, alterations of the carrier (corruptions, splices, signs), and other metadata, including the history of the document transmission (storage, duplication), must be preserved. All these metadata must be stored alongside the digital audio in preservation copies, which are organized data sets that group all the information (data and metadata) represented by the source document and are stored and maintained in several directories of the archive data center. (@10.1162/comj_a_00487)
+
+The proposed methodology seeks to enhance the reliability and scholarly suitability of digital preservation copies by taking the process a step further. Specifically, the software tools developed emphasize the “textual” aspects of a sound document, treating the A/D transfer as a philological operation of restitutio textus. This approach is particularly important in the realm of electroacoustic music on analog magnetic tapes. During A/D transfer of an audio document, digitization errors related to speed, equalization, and track numbers can occur, but the loss of useful ancillary information can also result in the creation of document “witnesses” with limited philological value. These document witnesses are non-identical digital audio documents with variants or differences in comparison to the original analog tape. Although they may represent a rough approximation of the original, these variants generate “noise” in the textual critic’s task, rendering them imperfect and of poor quality. Therefore, the proposed methodology seeks to address these issues and produce more reliable and accurate preservation copies by focusing on the philological aspects of sound documents.
+
+The methodology developed by CSC is based on the following principles:
+
+1. convert analog magnetic tapes to digital audio files;
+2. capture a video recording of the playback head of the tape recorder;
+3. listen to the audio recording and take notes on the presence of anomalies or irregularities in the audio signal;
+4. analyze the video recording to detect and locate the presence of irregularities in the audio signal;
+5. collect and store the metadata related to the audio document.
+
+It may be pertinent to inquire whether it is truly essential to automate the process of digital acquisition of tapes, given that an expert operator is expected to be capable of appropriately configuring the playback parameters for individual tapes, based on their known equalization curves and speeds. However, the obstacle lies in the fact that tape rewinding is frequently a protracted operation, and if this task is carried out in a consecutive manner, there exists a potential for errors to occur owing to fatigue or distraction. Additionally, the complexity of the problem exceeds superficial appearances since a single tape may contain multiple recordings of disparate materials, each with their own unique velocity and equalization curve. [^5]
+
+[^5]: It is common practice to reuse the same tape for multiple, disconnected instances in order to optimize its usage, and it may even be used by different individuals, rendering the content highly variable. For instance, it is not uncommon for a tape to be utilized for recording only a few minutes of audio, leaving the majority of the reel unused. Subsequently, on separate occasions, the tape may be reused, possibly played in reverse to avoid having to rewind it to the first available moment. Additionally, when only limited materials were available and the sole tape had only a few minutes of available recording space, the playback speed was set at a lower level to extend the available tape space. This set of recording practices results in a highly delicate and intricate digitization process for tapes, which requires meticulous attention to detail. Automating this process thus enables an expedited workflow while applying necessary corrections, where needed, in a precise and reproducible manner.
+
+### CSC Methodology as a Standard for Audio Preservation
+
+The methodology developed by the Centro di Sonologia Computazionale (CSC) for the preservation of historical audio documents has been recognized for its effectiveness and reliability. As a result, it has been adopted by the MPAI-CAE Audio Recording Preservation (ARP) use case for implementation in the laboratory. This implementation will provide a structured approach to preserve historical audio documents, ensuring their reliability and scholarly suitability while also enabling access to them.
+
+The standard includes various stages of processing, such as digitization of the analog audio signal, detection of irregularities, restoration of audio files, and packaging of the final output.
+
+Specifically, given the following inputs:
+
+- A Preservation Audio File, which is a digitized copy of the original audio recording.
+
+- A Preservation Audio-Visual File produced by a camera that records the playback head of the magnetic tape recorder.
+
+The ARP-AIF produces Preservation Master Files (a copy of the input) and Access Copy Files, which contain the processed and restored audio signal. A detailed description of the ARP-AIF can be found in @fig-arp
+
+![ARP, AI Framework](https://mpai.community/wp-content/uploads/2021/11/arp-14.png){fig-align="center" #fig-arp}
+
+One of the key components of the MPAI-CAE ARP standard is the Audio Analyser, which is responsible for detecting irregularities in the digitized audio signal and extracting the corresponding audio files. The Audio Analyser performs this task by comparing the digitized audio signal with a reference signal to identify any deviations in terms of speed or equalization.
+
+In this thesis, the main focus is the implementation of the Audio Analyser, and in particular, it has been taken in consideration the use of machine learning algorithms to determine the original equalization and speed of the audio tape. The input of the system is the digitized audio signal. The output of the system is a set of parameters that describe the equalization and speed of the original recording, which are used to restore the audio files to their original quality in next AIMs.

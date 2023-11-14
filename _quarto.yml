@@ -1,0 +1,26 @@
+project:
+  type: book
+
+book:
+  title: "MPAI CAE-ARP book"
+  author: "Matteo Spanio"
+  date: "2023-11-14"
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - mpai.qmd
+    - modules.qmd
+    - summary.qmd
+    - references.qmd
+
+bibliography: references.bib
+csl: ieee.csl
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+
+
