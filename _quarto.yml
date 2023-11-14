@@ -7,11 +7,11 @@ book:
   date: "2023-11-14"
   chapters:
     - index.qmd
-    - intro.qmd
-    - mpai.qmd
-    - modules.qmd
-    - summary.qmd
-    - references.qmd
+    - sections/intro.qmd
+    - sections/mpai.qmd
+    - sections/modules.qmd
+    - sections/summary.qmd
+    - sections/references.qmd
 
 bibliography: references.bib
 csl: ieee.csl
