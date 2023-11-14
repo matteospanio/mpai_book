@@ -1,0 +1,106 @@
+# Audio Analyser
+
+## Dataset load
+
+```{r, echo=FALSE}
+url2 <- "https://raw.githubusercontent.com/matteospanio/mpai-audio-analyser/main/src/ml/datasets/data/test.csv"
+url <- "https://raw.githubusercontent.com/matteospanio/mpai-audio-analyser/main/src/ml/datasets/data/train.csv"
+raw_data <- tempfile(fileext = ".csv")
+
+download.file(url, raw_data,
+              method = "auto",
+              mode = "wb")
+
+audio_data <- read.csv(raw_data)
+```
+
+The dataset is composed by `r length(audio_data)`
+
+## Preprocessing
+
+```{r}
+library(stringr)
+
+audio_data$r_eq <- ifelse(endsWith(audio_data$label, "N"), "NAB", "CCIR")
+audio_data$w_eq <- ifelse(
+  endsWith(
+    sapply(str_split(audio_data$label, "_"), function(x) x[1]),
+    "N"
+  ),
+  "NAB", "CCIR")
+
+audio_data$same_eq <- audio_data$r_eq == audio_data$w_eq
+```
+
+MFCCs normalization:
+
+```{r}
+library(dplyr)
+
+audio_data[3:15] <- audio_data[3:15] |>  data.frame() |> scale()
+```
+
+## Statistical analysis
+
+```{r, fig.align = "center"}
+library(ggplot2)
+library(ggpubr)
+
+p1 <- ggdensity(audio_data, x = "mfcc1",
+  add = "mean", rug = TRUE,
+  color = "same_eq", fill = "same_eq",
+  palette = c("#00AFBB", "#E7B800"),
+  ylab = "Density",
+  xlab = "MFCC 1 (normalized)",
+  legend.title = "Writing equalisation curve"
+)
+
+p2 <- ggdensity(audio_data, x = "mfcc2",
+  add = "mean", rug = TRUE,
+  color = "same_eq", fill = "same_eq",
+  palette = c("#00AFBB", "#E7B800"),
+  ylab = "Density",
+  xlab = "MFCC 2 (normalized)",
+  legend.title = "Writing equalisation curve"
+)
+
+p3 <- ggdensity(audio_data, x = "mfcc3",
+  add = "mean", rug = TRUE,
+  color = "same_eq", fill = "same_eq",
+  palette = c("#00AFBB", "#E7B800"),
+  ylab = "Density",
+  xlab = "MFCC 3 (normalized)",
+  legend.title = "Writing equalisation curve"
+)
+
+p4 <- ggdensity(audio_data, x = "mfcc4",
+  add = "mean", rug = TRUE,
+  color = "same_eq", fill = "same_eq",
+  palette = c("#00AFBB", "#E7B800"),
+  ylab = "Density",
+  xlab = "MFCC 4 (normalized)",
+  legend.title = "Writing equalisation curve"
+)
+
+ggarrange(
+  p1, p2, p3, p4,
+  ncol=2, nrow=2,
+  common.legend = TRUE,
+  legend="bottom"
+)
+```
+
+```{r}
+pca_results <- prcomp(audio_data[3:15], scale = TRUE)
+pca_2d <- pca_results$x[, 1:2]
+
+df_reduced <- data.frame(PC1 = pca_2d[, 1], PC2 = pca_2d[, 2], same_eq = audio_data$same_eq)
+
+ggplot(df_reduced, aes(x = PC1, y = PC2, color=same_eq)) +
+  geom_point() +
+  labs(
+    title = "PCA Scatter Plot",
+    x = "Principal Component 1",
+    y = "Principal Component 2",
+    color = "Same eq. curve")
+```

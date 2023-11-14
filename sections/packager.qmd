@@ -1,0 +1,3 @@
+# Packager
+
+The Preservation Master File includes the Preservation Audio File, the Preservation Audio-Visual file where the audio has been replaced with the Audio of the Preservation Audio File synchronized with the video, the Irregularity Images File in a single .zip file, and the Irregularity File listing all detected Irregularities. Access Copy Files include the audio information stored on the tape, and Restored Audio Files, which are suitable for audio content access but not for long-term preservation. In addition, Access Copy Files includes an Editing List, The Irregularity File, and the corresponding set of Irregularity Images

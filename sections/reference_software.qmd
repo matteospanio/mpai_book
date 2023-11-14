@@ -1,0 +1,3 @@
+# Reference Software
+
+The standard creation process goes through many steps, one of which is the creation of the reference software. In this case, due to the modularity imposed by MPAI, the client-server architecture has been chosen.

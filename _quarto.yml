@@ -5,11 +5,36 @@ book:
   title: "MPAI CAE-ARP book"
   author: "Matteo Spanio"
   date: "2023-11-14"
+
+  page-footer:
+    left: |
+      MPAI CAE-ARP book was written by Matteo Spanio.
+    right: |
+      This book was built with <a href="https://quarto.org/">Quarto</a>.
+
+  cover-image: figures/cover.png
+  favicon: figures/cover.png
+
+  repo-url: https://github.com/matteospanio/mpai_book/
+  repo-branch: master
+  repo-actions: [edit, issue]
+
   chapters:
     - index.qmd
     - sections/intro.qmd
     - sections/mpai.qmd
-    - sections/modules.qmd
+
+    - part: sections/reference_software.qmd
+      chapters:
+        - sections/audio_analyser.qmd
+        - sections/video_analyser.qmd
+        - sections/tape_classifier.qmd
+        - sections/tape_restoration.qmd
+        - sections/packager.qmd
+
+    - sections/conformance_testing.qmd
+
+
     - sections/summary.qmd
     - sections/references.qmd
 
@@ -19,6 +44,7 @@ csl: ieee.csl
 format:
   html:
     theme: cosmo
+    code-link: true
   pdf:
     documentclass: scrreprt
     toc: true
